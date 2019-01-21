@@ -27,12 +27,13 @@ layer {
   convolution_param {
     num_output: 32
     kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.0001
-    }
+    stride: 1
+     weight_filler {
+      type: "xavier"
+	}
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
 }
@@ -69,12 +70,13 @@ layer {
   convolution_param {
     num_output: 64
     kernel_size: 3
-    weight_filler {
-      type: "gaussian"
-      std: 0.0001
-    }
+    stride: 1
+     weight_filler {
+      type: "xavier"
+	}
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
 }
@@ -247,7 +249,7 @@ layer {
 }
 layer {
   name: "ClassifyLoss"
-  type: "SoftmaxWithLoss"
+  type: "SoftmaxWithLossOHEM"
   bottom: "fc6-1-valid"
   bottom: "label-valid"
   top: "ClassifyLoss"
@@ -294,11 +296,12 @@ layer {
   type: "Python"
   bottom: "fc6-2"
   bottom: "roi"
+  bottom: "label"
   top: "RegressionLoss"
   loss_weight: 0.5
   python_param {
     module: "pythonLayer"
-    layer:  "regression_Layer"
+    layer:  "bbox_regression_Layer"
   }
 }
 layer {
@@ -330,10 +333,11 @@ layer {
   type: "Python"
   bottom: "fc6-3"
   bottom: "pts"
+  bottom: "label"
   top: "LandmarkLoss"
   loss_weight: 1
   python_param {
     module: "pythonLayer"
-    layer:  "regression_Layer"
+    layer:  "landmark_regression_Layer"
   }
 }

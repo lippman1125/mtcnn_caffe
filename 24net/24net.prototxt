@@ -10,12 +10,10 @@ layer {
   bottom: "data"
   top: "conv1"
   param {
-    lr_mult: 0
-    decay_mult: 0
+    lr_mult: 1
   }
   param {
-    lr_mult: 0
-    decay_mult: 0
+    lr_mult: 2
   }
   convolution_param {
     num_output: 28
@@ -31,11 +29,10 @@ layer {
   }
 }
 layer {
-  name: "prelu1"
+  name: "relu1"
   type: "PReLU"
   bottom: "conv1"
   top: "conv1"
-  propagate_down: true
 }
 layer {
   name: "pool1"
@@ -48,19 +45,16 @@ layer {
     stride: 2
   }
 }
-
 layer {
   name: "conv2"
   type: "Convolution"
   bottom: "pool1"
   top: "conv2"
   param {
-    lr_mult: 0
-    decay_mult: 0
+    lr_mult: 1
   }
   param {
-    lr_mult: 0
-    decay_mult: 0
+    lr_mult: 2
   }
   convolution_param {
     num_output: 48
@@ -76,11 +70,10 @@ layer {
   }
 }
 layer {
-  name: "prelu2"
+  name: "relu2"
   type: "PReLU"
   bottom: "conv2"
   top: "conv2"
-  propagate_down: true
 }
 layer {
   name: "pool2"
@@ -99,20 +92,20 @@ layer {
   bottom: "pool2"
   top: "conv3"
   param {
-    lr_mult: 0
-    decay_mult: 0
+    lr_mult: 1
+    decay_mult: 1
   }
   param {
-    lr_mult: 0
+    lr_mult: 2
     decay_mult: 0
   }
   convolution_param {
     num_output: 64
     kernel_size: 2
     stride: 1
-    weight_filler {
-      type: "xavier"
-	}
+     weight_filler {
+     type: "xavier"
+    }
     bias_filler {
       type: "constant"
       value: 0
@@ -120,88 +113,29 @@ layer {
   }
 }
 layer {
-  name: "prelu3"
+  name: "relu3"
   type: "PReLU"
   bottom: "conv3"
   top: "conv3"
-  propagate_down: true
 }
 layer {
-  name: "conv4"
+  name: "fc4"
   type: "InnerProduct"
   bottom: "conv3"
-  top: "conv4"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 128
-    weight_filler {
-      type: "xavier"
-	}
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "prelu4"
-  type: "PReLU"
-  bottom: "conv4"
-  top: "conv4"
-}
-layer {
-  name: "conv5-1"
-  type: "InnerProduct"
-  bottom: "conv4"
-  top: "conv5-1"
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  param {
-    lr_mult: 0
-    decay_mult: 0
-  }
-  inner_product_param {
-    num_output: 2
-    #kernel_size: 1
-    #stride: 1
-    weight_filler {
-      type: "xavier"
-	}
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "conv5-2"
-  type: "InnerProduct"
-  bottom: "conv4"
-  top: "conv5-2"
+  top: "fc4"
   param {
     lr_mult: 1
     decay_mult: 1
   }
   param {
     lr_mult: 2
-    decay_mult: 1
+    decay_mult: 0
   }
   inner_product_param {
-    num_output: 4
-    #kernel_size: 1
-    #stride: 1
-     weight_filler {
-      type: "xavier"
-	}
+    num_output: 128
+    weight_filler {
+     type: "xavier"
+    }
     bias_filler {
       type: "constant"
       value: 0
@@ -209,8 +143,82 @@ layer {
   }
 }
 layer {
-  name: "prob1"
-  type: "Softmax"
-  bottom: "conv5-1"
-  top: "prob1"
+  name: "relu4"
+  type: "PReLU"
+  bottom: "fc4"
+  top: "fc4"
+}
+layer {
+  name: "fc5-1"
+  type: "InnerProduct"
+  bottom: "fc4"
+  top: "fc5-1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 2
+    weight_filler {
+     type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "fc5-2"
+  type: "InnerProduct"
+  bottom: "fc4"
+  top: "fc5-2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 4
+    weight_filler {
+     type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "fc5-3"
+  type: "InnerProduct"
+  bottom: "fc4"
+  top: "fc5-3"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+     type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
 }

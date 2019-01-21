@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
+export PYTHONPATH=/home/lqy3/caffe/python:/home/lqy3/mtcnn-caffe/24net
 
 set -e
-~/caffe/build/tools/caffe train \
-	 --solver=./solver.prototxt \
-  	 --weights=./24net-only-cls.caffemodel
+/home/lqy3/caffe/build/tools/caffe train \
+	 --solver=./solver.prototxt --gpu 0\

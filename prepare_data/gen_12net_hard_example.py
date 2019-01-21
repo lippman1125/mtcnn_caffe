@@ -33,7 +33,7 @@ def detectFace(img_path,threshold):
 	caffe.set_device(0)
 	caffe.set_mode_gpu()
 	out_ = net_12.forward()
-        out.append(out_)
+    out.append(out_)
     image_num = len(scales)
     rectangles = []
     for i in range(image_num):    

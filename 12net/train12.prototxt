@@ -18,19 +18,21 @@ layer {
   top: "conv1"
   param {
     lr_mult: 1
+    decay_mult: 1
   }
   param {
     lr_mult: 2
+    decay_mult: 0
   }
   convolution_param {
     num_output: 10
     kernel_size: 3
     weight_filler {
-      type: "gaussian"
-      std: 0.0001
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
 }
@@ -47,7 +49,7 @@ layer {
   top: "pool1"
   pooling_param {
     pool: MAX
-    kernel_size: 3
+    kernel_size: 2
     stride: 2
   }
 }
@@ -58,19 +60,21 @@ layer {
   top: "conv2"
   param {
     lr_mult: 1
+    decay_mult: 1
   }
   param {
     lr_mult: 2
+    decay_mult: 0
   }
   convolution_param {
     num_output: 16
     kernel_size: 3
     weight_filler {
-      type: "gaussian"
-      std: 0.0001
+      type: "xavier"
     }
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
 }
@@ -152,13 +156,17 @@ layer {
 }
 layer {
   name: "cls_loss"
-  type: "SoftmaxWithLoss"
+  type: "SoftmaxWithLossOHEM"
   bottom: "conv4-1-valid"
   bottom: "label-valid"
   top: "cls_loss"
   propagate_down: 1
   propagate_down: 0
   loss_weight: 1
+  softmax_with_loss_param {
+    use_hard_mining: true
+    hard_ratio: 0.7
+  }
 }
 layer {
   name: "cls_Acc"
@@ -188,9 +196,9 @@ layer {
     num_output: 4
     kernel_size: 1
     stride: 1
-     weight_filler {
+    weight_filler {
       type: "xavier"
-	}
+    }
     bias_filler {
       type: "constant"
       value: 0
@@ -202,11 +210,12 @@ layer {
   type: "Python"
   bottom: "conv4-2"
   bottom: "roi"
+  bottom: "label"
   top: "roi_loss"
   loss_weight: 0.5
   python_param {
     module: "pythonLayer"
-    layer:  "regression_Layer"
+    layer:  "bbox_regression_Layer"
   }
 }
 layer {
@@ -226,9 +235,9 @@ layer {
     num_output: 10
     kernel_size: 1
     stride: 1
-     weight_filler {
+    weight_filler {
       type: "xavier"
-	}
+    }
     bias_filler {
       type: "constant"
       value: 0
@@ -240,10 +249,11 @@ layer {
   type: "Python"
   bottom: "conv4-3"
   bottom: "pts"
+  bottom: "label"
   top: "pts_loss"
   loss_weight: 0.5
   python_param {
     module: "pythonLayer"
-    layer:  "regression_Layer"
+    layer:  "landmark_regression_Layer"
   }
 }

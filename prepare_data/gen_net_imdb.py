@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.random as npr
-size = 48
-net = str(size)
+size = 12
+net = '12net/' + str(size)
 with open('%s/pos_%s.txt'%(net, size), 'r') as f:
     pos = f.readlines()
 
@@ -53,7 +53,7 @@ for i in neg_keep:
     line = neg[i]
     view_bar(cur_,sum_)
     cur_ += 1
-    words = line.split()
+    words = line.strip().split()
     image_file_name = words[0]+'.jpg'
     im = cv2.imread(image_file_name)
     h,w,ch = im.shape

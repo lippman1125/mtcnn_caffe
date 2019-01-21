@@ -57,7 +57,7 @@ for annotation in annotations:
         if np.max(Iou) < 0.3:
             # Iou with all gts must below 0.3
             save_file = os.path.join(neg_save_dir, "%s.jpg"%n_idx)
-            f2.write("12/negative/%s"%n_idx + ' 0\n')
+            f2.write("../12net/12/negative/%s"%n_idx + ' 0\n')
             cv2.imwrite(save_file, resized_im)
             n_idx += 1
             neg_num += 1
@@ -69,12 +69,47 @@ for annotation in annotations:
 
         # ignore small faces
         # in case the ground truth boxes of small faces are not accurate
-        if max(w, h) < 40 or x1 < 0 or y1 < 0:
+        if max(w, h) < 20 or x1 < 0 or y1 < 0:
             continue
+
+        # crop another 5 images near the bounding box if IoU less than 0.5, save as negative samples
+        for i in range(5):
+            #size of the image to be cropped
+            size = npr.randint(12, min(width, height) / 2)
+            # delta_x and delta_y are offsets of (x1, y1)
+            # max can make sure if the delta is a negative number , x1+delta_x >0
+            # parameter high of randint make sure there will be intersection between bbox and cropped_box
+            delta_x = npr.randint(max(-size, -x1), w)
+            delta_y = npr.randint(max(-size, -y1), h)
+            # max here not really necessary
+            nx1 = int(max(0, x1 + delta_x))
+            ny1 = int(max(0, y1 + delta_y))
+            # if the right bottom point is out of image then skip
+            if nx1 + size > width or ny1 + size > height:
+                continue
+            crop_box = np.array([nx1, ny1, nx1 + size, ny1 + size])
+            Iou = IoU(crop_box, boxes)
+    
+            cropped_im = img[ny1: ny1 + size, nx1: nx1 + size, :]
+            #rexize cropped image to be 12 * 12
+            resized_im = cv2.resize(cropped_im, (12, 12), interpolation=cv2.INTER_LINEAR)
+    
+            if np.max(Iou) < 0.3:
+                # Iou with all gts must below 0.3
+                save_file = os.path.join(neg_save_dir, "%s.jpg" % n_idx)
+                f2.write("../12/negative/%s"%n_idx + ' 0\n')
+                cv2.imwrite(save_file, resized_im)
+                n_idx += 1
+
 
         # generate positive examples and part faces
         for i in range(20):
             size = npr.randint(int(min(w, h) * 0.8), np.ceil(1.25 * max(w, h)))
+            
+            # delta here is the offset of box center
+            if w<5 or h<5:
+                print (w, h)
+                continue
 
             # delta here is the offset of box center
             delta_x = npr.randint(-w * 0.2, w * 0.2)
@@ -100,12 +135,12 @@ for annotation in annotations:
             box_ = box.reshape(1, -1)
             if IoU(crop_box, box_) >= 0.65:
                 save_file = os.path.join(pos_save_dir, "%s.jpg"%p_idx)
-                f1.write("12/positive/%s"%p_idx + ' 1 %.2f %.2f %.2f %.2f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
+                f1.write("../12net/12/positive/%s"%p_idx + ' 1 %.2f %.2f %.2f %.2f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 cv2.imwrite(save_file, resized_im)
                 p_idx += 1
             elif IoU(crop_box, box_) >= 0.4:
                 save_file = os.path.join(part_save_dir, "%s.jpg"%d_idx)
-                f3.write("12/part/%s"%d_idx + ' -1 %.2f %.2f %.2f %.2f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
+                f3.write("../12net/12/part/%s"%d_idx + ' -1 %.2f %.2f %.2f %.2f\n'%(offset_x1, offset_y1, offset_x2, offset_y2))
                 cv2.imwrite(save_file, resized_im)
                 d_idx += 1
         box_idx += 1
