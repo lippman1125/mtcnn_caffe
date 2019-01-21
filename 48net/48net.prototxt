@@ -4,6 +4,7 @@ input_dim: 1
 input_dim: 3
 input_dim: 48
 input_dim: 48
+
 layer {
   name: "conv1"
   type: "Convolution"
@@ -31,7 +32,7 @@ layer {
   }
 }
 layer {
-  name: "prelu1"
+  name: "relu1"
   type: "PReLU"
   bottom: "conv1"
   top: "conv1"
@@ -73,9 +74,8 @@ layer {
     }
   }
 }
-
 layer {
-  name: "prelu2"
+  name: "relu2"
   type: "PReLU"
   bottom: "conv2"
   top: "conv2"
@@ -91,7 +91,6 @@ layer {
     stride: 2
   }
 }
-
 layer {
   name: "conv3"
   type: "Convolution"
@@ -106,11 +105,12 @@ layer {
     decay_mult: 1
   }
   convolution_param {
-	num_output: 64
-	kernel_size: 3
-    weight_filler {
-      type: "xavier"
-	}
+    num_output: 64
+    kernel_size: 3
+    stride: 1
+     weight_filler {
+     type: "xavier"
+    }
     bias_filler {
       type: "constant"
       value: 0
@@ -118,7 +118,7 @@ layer {
   }
 }
 layer {
-  name: "prelu3"
+  name: "relu3"
   type: "PReLU"
   bottom: "conv3"
   top: "conv3"
@@ -148,11 +148,12 @@ layer {
     decay_mult: 1
   }
   convolution_param {
-	num_output: 128
-	kernel_size: 2
-    weight_filler {
-      type: "xavier"
-	}
+    num_output: 128
+    kernel_size: 2
+    stride: 1
+     weight_filler {
+     type: "xavier"
+    }
     bias_filler {
       type: "constant"
       value: 0
@@ -160,18 +161,16 @@ layer {
   }
 }
 layer {
-  name: "prelu4"
+  name: "relu4"
   type: "PReLU"
   bottom: "conv4"
   top: "conv4"
 }
-
-
 layer {
-  name: "conv5"
+  name: "fc5"
   type: "InnerProduct"
   bottom: "conv4"
-  top: "conv5"
+  top: "fc5"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -181,40 +180,86 @@ layer {
     decay_mult: 1
   }
   inner_product_param {
-	#kernel_size: 3
-	num_output: 256
+    num_output: 256
     weight_filler {
-      type: "xavier"
-	}
+     type: "xavier"
+    }
     bias_filler {
       type: "constant"
       value: 0
     }
   }
 }
-
+layer {
+  name: "relu5"
+  type: "PReLU"
+  bottom: "fc5"
+  top: "fc5"
+}
 layer {
   name: "drop5"
   type: "Dropout"
-  bottom: "conv5"
-  top: "conv5"
-  dropout_param {
-    dropout_ratio: 0.25
+  bottom: "fc5"
+  top: "fc5"
+  dropout_param{
+    dropout_ratio: 0.5
   }
 }
 layer {
-  name: "prelu5"
-  type: "PReLU"
-  bottom: "conv5"
-  top: "conv5"
+  name: "fc6-1"
+  type: "InnerProduct"
+  bottom: "fc5"
+  top: "fc6-1"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 1
+  }
+  inner_product_param {
+    num_output: 2
+    weight_filler {
+     type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
 }
 
+layer {
+  name: "fc6-2"
+  type: "InnerProduct"
+  bottom: "fc5"
+  top: "fc6-2"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 1
+  }
+  inner_product_param {
+    num_output: 4
+    weight_filler {
+     type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
 
 layer {
-  name: "conv6-1"
+  name: "fc6-3"
   type: "InnerProduct"
-  bottom: "conv5"
-  top: "conv6-1"
+  bottom: "fc5"
+  top: "fc6-3"
   param {
     lr_mult: 1
     decay_mult: 1
@@ -224,70 +269,20 @@ layer {
     decay_mult: 1
   }
   inner_product_param {
-    #kernel_size: 1
-	num_output: 2
+    num_output: 10
     weight_filler {
-      type: "xavier"
-	}
+     type: "xavier"
+    }
     bias_filler {
       type: "constant"
       value: 0
     }
   }
 }
-layer {
-  name: "conv6-2"
-  type: "InnerProduct"
-  bottom: "conv5"
-  top: "conv6-2"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
-  inner_product_param {
-  	#kernel_size: 1
-	num_output: 4
-    weight_filler {
-      type: "xavier"
-	}
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
-layer {
-  name: "conv6-3"
-  type: "InnerProduct"
-  bottom: "conv5"
-  top: "conv6-3"
-  param {
-    lr_mult: 1
-    decay_mult: 1
-  }
-  param {
-    lr_mult: 2
-    decay_mult: 1
-  }
-  inner_product_param {
-  	#kernel_size: 1
-	num_output: 10
-    weight_filler {
-      type: "xavier"
-	}
-    bias_filler {
-      type: "constant"
-      value: 0
-    }
-  }
-}
+
 layer {
   name: "prob1"
   type: "Softmax"
-  bottom: "conv6-1"
+  bottom: "fc6-1"
   top: "prob1"
 }

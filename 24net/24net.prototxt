@@ -222,3 +222,10 @@ layer {
     }
   }
 }
+
+layer {
+  name: "prob1"
+  type: "Softmax"
+  bottom: "fc5-1"
+  top: "prob1"
+}

@@ -33,7 +33,7 @@ def view_bar(num, total):
     sys.stdout.write(r)
     sys.stdout.flush()
     
-'''
+
 positive_list = []
 print('\n'+ 'positive-{}'.format(size))
 cur_ = 0
@@ -60,7 +60,7 @@ for line in pos:
 fid = open(positive_imdb, 'w')
 pickle.dump(positive_list, fid)
 fid.close()
-'''
+
 
 nagative_list = []
 print ('\n'+ 'negative-{}'.format(size))
@@ -91,7 +91,7 @@ fid = open(negative_imdb, 'w')
 pickle.dump(nagative_list, fid)
 fid.close()
 
-'''
+
 part_list = []
 print '\n'+'part-{}'.format(size)
 cur_ = 0
@@ -151,4 +151,3 @@ for line in landmark:
 fid = open(landmark_imdb,'w')
 pickle.dump(landmark_list, fid)
 fid.close()
-'''

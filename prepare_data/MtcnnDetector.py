@@ -344,7 +344,7 @@ class MtcnnDetector(object):
         self.rnet_detector.blobs['data'].data[...] = np.transpose(cropped_ims, (0, 3, 1, 2))
         out_ = self.rnet_detector.forward()
         # print(out_)
-        cls_scores = out_['fc5-1']
+        cls_scores = out_['prob1']
         reg = out_['fc5-2']
 
         cls_scores = cls_scores[:, 1]
@@ -392,8 +392,15 @@ class MtcnnDetector(object):
             tmp[dy[i]:edy[i] + 1, dx[i]:edx[i] + 1, :] = im[y[i]:ey[i] + 1, x[i]:ex[i] + 1, :]
             cropped_ims[i, :, :, :] = (cv2.resize(tmp, (48, 48)) - 127.5) / 128
 
-        cls_scores, reg, landmark = self.onet_detector.predict(cropped_ims)
+        self.onet_detector.blobs['data'].reshape(num_boxes, 3, 48, 48)
+        self.onet_detector.blobs['data'].data[...] = np.transpose(cropped_ims, (0, 3, 1, 2))
+        out_ = self.onet_detector.forward()
+        # cls_scores, reg, landmark = self.onet_detector.predict(cropped_ims)
         # prob belongs to face
+        cls_scores = out_['prob1']
+        reg = out_['fc6-2']
+        landmark = out_["fc6-3"]
+
         cls_scores = cls_scores[:, 1]
         keep_inds = np.where(cls_scores > self.thresh[2])[0]
         if len(keep_inds) > 0:
