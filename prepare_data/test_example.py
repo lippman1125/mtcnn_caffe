@@ -83,5 +83,5 @@ for annotation in annotations:
         # cv2.circle(img, (int(pts[8]), int(pts[9])), 3, (0, 255, 0), 2)
 
     cv2.imshow("{}".format(annotation[0]), img)
-    cv2.imwrite(os.path.join(im_dir, annotation[0] + "_detection.jpg"), img)
+    # cv2.imwrite(os.path.join(im_dir, annotation[0] + "_detection.jpg"), img)
     cv2.waitKey(0)
